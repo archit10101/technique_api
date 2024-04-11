@@ -20,9 +20,13 @@ app.use(bodyparser.urlencoded({extended : true}))
 app.use(morgan("combined"))
 const PORT = process.env.PORT || 8080;
 
-https.createServer(options, app).listen(PORT, () => {
-    console.log('Server listening on port https://localhost:'+PORT);
-  });
+// https.createServer(options, app).listen(PORT, () => {
+//     console.log('Server listening on port https://localhost:'+PORT);
+//   });
+
+app.listen(PORT, ()=>{
+    console.log("listening");
+});
 
 const connection = mysql.createConnection({
     host: "aws-technique.cxemeyy82p0i.us-east-2.rds.amazonaws.com",
