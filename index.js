@@ -18,7 +18,7 @@ const bodyparser = require("body-parser");
 app.use(bodyparser.json())
 app.use(bodyparser.urlencoded({extended : true}))
 app.use(morgan("combined"))
-const PORT = 8080;
+const PORT = process.env.port || 8080;
 
 https.createServer(options, app).listen(PORT, () => {
     console.log('Server listening on port https://localhost:'+PORT);
