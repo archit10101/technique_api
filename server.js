@@ -81,11 +81,11 @@ app.post("/users", async (req, res) => {
     }
 });
 
-app.get("/users/:userID",(req,res) => {
-    console.log("the userID is "+req.params.userID)
-    var queryString = "SELECT * FROM user_info WHERE userName= ?";
-    console.log(queryString,[req.params.userID]);
-    connection.query(queryString,[req.params.userID], (err, rows, fields) => {
+app.get("/users/:name",(req,res) => {
+    console.log("the name is "+req.params.name)
+    var queryString = "SELECT * FROM user_info WHERE firstName= ?";
+    console.log(queryString,[req.params.name]);
+    connection.query(queryString,[req.params.name], (err, rows, fields) => {
         if (err) {
             console.log("Error fetching users:", err);
             res.status(500).json({ error: 'Internal Server Error' });
