@@ -82,10 +82,10 @@ app.post("/users", async (req, res) => {
 });
 
 app.get("/users/:userID",(req,res) => {
-    console.log("the userID is "+req.params.id)
+    console.log("the userID is "+req.params.userID)
     var queryString = "SELECT * FROM user_info WHERE userName= ?";
-    console.log(queryString,[req.params.id]);
-    connection.query(queryString,[req.params.id], (err, rows, fields) => {
+    console.log(queryString,[req.params.userID]);
+    connection.query(queryString,[req.params.userID], (err, rows, fields) => {
         if (err) {
             console.log("Error fetching users:", err);
             res.status(500).json({ error: 'Internal Server Error' });
