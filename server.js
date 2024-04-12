@@ -58,33 +58,22 @@ function queryPromise(sql, values = []){
 
 app.post("/users", async (req, res) => {
     try {
-        // Destructure values from req.body
-        const { user_ID, user_name, user_email, user_password, user_phonenumber, first_name, last_name } = req.body;
-
-        // Check if required fields are provided
-        if (!user_name || !user_email || !user_password) {
+        const { userName, userPassword, userEmail, firstName, lastName } = req.body;
+        if (!userName || !userEmail || !userPassword) {
             throw new Error("User name, email, and password are mandatory");
         }
-
-        // Create an array with user data
-        const userData = [user_ID, user_name, user_email, user_password, user_phonenumber, first_name, last_name];
-
-        // SQL query to insert user into 'user_info' table
-        const SQL = "INSERT INTO `user_info` (user_ID, user_name, user_email, user_password, user_phonenumber, first_name, last_name) VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-        // Execute the query
+        const userData = [userName, userPassword, userEmail, firstName, lastName];
+        const SQL = "INSERT INTO `user_info` (userName, userPassword,userEmail, firstName, lastName) VALUES (?, ?, ?, ?, ?)";
         const result = await queryPromise(SQL, userData);
-
-        // Respond with the newly created user's data
-        res.json({
-            id: result.insertId,
-            user_ID,
-            user_name,
-            user_email,
-            user_password: '********', // You might not want to send the password back
-            user_phonenumber,
-            first_name,
-            last_name,
+        var queryString = "SELECT * FROM user_info WHERE firstName = ?";
+        connection.query(queryString,[firstName], (err, rows, fields) => {
+            if (err) {
+                console.log("Error fetching users:", err);
+                res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+                console.log("We fetched users successfully");
+                res.json(rows); 
+            }
         });
     } catch (err) {
         console.error(err);
@@ -94,25 +83,16 @@ app.post("/users", async (req, res) => {
 
 app.get("/users/:id",(req,res) => {
     console.log("the id is "+req.params.id)
-    
-
-    var queryString = "SELECT * FROM user_info WHERE first_name = ?";
+    var queryString = "SELECT * FROM user_info WHERE firstName = ?";
     console.log(queryString,[req.params.id]);
-    connection.connect((err) => {
-        if(err){
-            console.log("unable to connect to the database")
-        }
-        console.log("connected successfully")
-    });
     connection.query(queryString,[req.params.id], (err, rows, fields) => {
         if (err) {
             console.log("Error fetching users:", err);
             res.status(500).json({ error: 'Internal Server Error' });
         } else {
             console.log("We fetched users successfully");
-            res.json(rows);  // Send the response here
+            res.json(rows);
         }
-        // Close the connection after sending the response or handling the error
     });
 })
 
