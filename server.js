@@ -83,7 +83,7 @@ app.post("/users", async (req, res) => {
 
 app.get("/users/:userID",(req,res) => {
     console.log("the userID is "+req.params.id)
-    var queryString = "SELECT * FROM user_info WHERE userID = ?";
+    var queryString = "SELECT * FROM user_info WHERE userName= ?";
     console.log(queryString,[req.params.id]);
     connection.query(queryString,[req.params.id], (err, rows, fields) => {
         if (err) {
