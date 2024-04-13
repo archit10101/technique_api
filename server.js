@@ -26,6 +26,8 @@ const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, ()=>{
     console.log("listening");
+    console.log('Server listening on port http://localhost:'+PORT);
+
 });
 
 const connection = mysql.createConnection({
@@ -81,11 +83,12 @@ app.post("/users", async (req, res) => {
     }
 });
 
-app.get("/users/:name",(req,res) => {
-    console.log("the name is "+req.params.name)
-    var queryString = "SELECT * FROM user_info WHERE firstName= ?";
-    console.log(queryString,[req.params.name]);
-    connection.query(queryString,[req.params.name], (err, rows, fields) => {
+app.get("/users/:userName/:password",(req,res) => {
+    console.log("the name is "+req.params.userName)
+    console.log("the password is "+req.params.password)
+    var queryString = "SELECT * FROM user_info WHERE userName= ? AND userPassword = ?";
+    console.log(queryString,[req.params.userName,req.params.password]);
+    connection.query(queryString,[req.params.userName,req.params.password], (err, rows, fields) => {
         if (err) {
             console.log("Error fetching users:", err);
             res.status(500).json({ error: 'Internal Server Error' });
