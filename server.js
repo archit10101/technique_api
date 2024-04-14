@@ -60,7 +60,7 @@ function queryPromise(sql, values = []){
 
 app.post("/users", async (req, res) => {
     try {
-        const { userName, userPassword, userEmail, firstName, lastName } = req.body;
+        const {id,userName, userPassword, userEmail, firstName, lastName } = req.body;
         if (!userName || !userEmail || !userPassword) {
             throw new Error("User name, email, and password are mandatory");
         }
