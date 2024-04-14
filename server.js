@@ -68,6 +68,8 @@ app.post("/users", async (req, res) => {
         const SQL = "INSERT INTO `user_info` (userName, userPassword,userEmail, firstName, lastName) VALUES (?, ?, ?, ?, ?)";
         const result = await queryPromise(SQL, userData);
         var queryString = "SELECT * FROM user_info WHERE firstName = ?";
+        console.log(queryString,userData);
+
         connection.query(queryString,[firstName], (err, rows, fields) => {
             if (err) {
                 console.log("Error fetching users:", err);
