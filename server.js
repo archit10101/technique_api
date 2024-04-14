@@ -64,7 +64,7 @@ app.post("/users", async (req, res) => {
         
         const userData = [userName, userPassword, userEmail, firstName, lastName];
         if (!userName || !userEmail || !userPassword) {
-            console.log(queryString,userData);
+            console.log(userData);
 
             throw new Error("User name, email, and password are mandatory");
         }
