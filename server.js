@@ -64,7 +64,7 @@ app.post("/users", async (req, res) => {
         
         const userData = [userName, userPassword, userEmail, firstName, lastName];
         if (!userName || !userEmail || !userPassword) {
-            console.log(userData);
+            console.log("d",userData);
 
             throw new Error("User name, email, and password are mandatory");
         }
@@ -115,3 +115,95 @@ app.get("/users", (req,res) =>{
     res.json([user1,user2])
 
 })
+
+app.post("/courses", async (req, res) => {
+    try {
+        const { courseName, courseDescription, courseAuthorName, courseAuthorID, courseAuthorImgPath, courseImgPath } = req.body;
+        
+        const courseData = [courseName, courseDescription, courseAuthorName, courseAuthorID, courseAuthorImgPath, courseImgPath];
+        if (!courseName || !courseDescription || !courseAuthorName || !courseAuthorID) {
+            throw new Error("Course name, description, author name, and author ID are mandatory");
+        }
+        const SQL = "INSERT INTO `courses` (courseName, courseDescription, courseAuthorName, courseAuthorID, courseAuthorImgPath, courseImgPath) VALUES (?, ?, ?, ?, ?, ?)";
+        const result = await queryPromise(SQL, courseData);
+        const queryString = "SELECT * FROM courses WHERE courseID = ?";
+        connection.query(queryString, [result.insertId], (err, rows, fields) => {
+            if (err) {
+                console.log("Error fetching course:", err);
+                res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+                console.log("Inserted course successfully");
+                res.json(rows[0]); 
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+app.get("/courses/courseID/:courseID", (req, res) => {
+    const courseID = req.params.courseID;
+    const queryString = "SELECT * FROM courses WHERE courseID = ?";
+    connection.query(queryString, [courseID], (err, rows, fields) => {
+        if (err) {
+            console.log("Error fetching course:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            if (rows.length > 0) {
+                console.log("Fetched course successfully");
+                res.json(rows[0]);
+            } else {
+                res.status(404).json({ error: 'Course not found' });
+            }
+        }
+    });
+});
+
+app.get("/courses/tag/:tagID", (req, res) => {
+    const tagID = req.params.tagID;
+    const queryString = `
+        SELECT courses.*
+        FROM courses
+        INNER JOIN course_tags_relation ON courses.courseID = course_tags_relation.courseID
+        WHERE course_tags_relation.tagID = ?`;
+    connection.query(queryString, [tagID], (err, rows, fields) => {
+        if (err) {
+            console.log("Error fetching courses with tag:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            console.log("Fetched courses with tag successfully");
+            res.json(rows);
+        }
+    });
+});
+
+app.get("/courses", (req, res) => {
+    const queryString = "SELECT * FROM courses";
+    connection.query(queryString, (err, rows, fields) => {
+        if (err) {
+            console.log("Error fetching courses:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            console.log("Fetched all courses successfully");
+            res.json(rows);
+        }
+    });
+});
+
+app.get("/courses/search/:searchString", (req, res) => {
+    const searchString = "%" + req.params.searchString + "%"; // Add wildcards to search string
+    const queryString = `
+        SELECT *
+        FROM courses
+        WHERE courseName LIKE ?`;
+    connection.query(queryString, [searchString], (err, rows, fields) => {
+        if (err) {
+            console.log("Error searching for courses:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            console.log("Courses found successfully");
+            res.json(rows);
+        }
+    });
+});
