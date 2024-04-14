@@ -61,10 +61,13 @@ function queryPromise(sql, values = []){
 app.post("/users", async (req, res) => {
     try {
         const {id,userName, userPassword, userEmail, firstName, lastName } = req.body;
+        
+        const userData = [userName, userPassword, userEmail, firstName, lastName];
         if (!userName || !userEmail || !userPassword) {
+            console.log(queryString,userData);
+
             throw new Error("User name, email, and password are mandatory");
         }
-        const userData = [userName, userPassword, userEmail, firstName, lastName];
         const SQL = "INSERT INTO `user_info` (userName, userPassword,userEmail, firstName, lastName) VALUES (?, ?, ?, ?, ?)";
         const result = await queryPromise(SQL, userData);
         var queryString = "SELECT * FROM user_info WHERE firstName = ?";
