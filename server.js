@@ -160,20 +160,37 @@ app.get("/courses/courseID/:courseID", (req, res) => {
     });
 });
 
-app.get("/courses/tag/:tagID", (req, res) => {
-    const tagID = req.params.tagID;
-    const queryString = `
-        SELECT courses.*
-        FROM courses
-        INNER JOIN course_tags_relation ON courses.courseID = course_tags_relation.courseID
-        WHERE course_tags_relation.tagID = ?`;
-    connection.query(queryString, [tagID], (err, rows, fields) => {
+app.get("/courses/tag/:tag_name", (req, res) => {
+    const tagName = req.params.tag_name;
+    const getTagIDQuery = "SELECT tagID FROM tag_info WHERE tag_name = ?";
+    
+    connection.query(getTagIDQuery, [tagName], (err, tagRows, fields) => {
         if (err) {
-            console.log("Error fetching courses with tag:", err);
+            console.log("Error fetching tag ID:", err);
             res.status(500).json({ error: 'Internal Server Error' });
         } else {
-            console.log("Fetched courses with tag successfully");
-            res.json(rows);
+            if (tagRows.length === 0) {
+                // Tag not found, return empty response or appropriate error
+                console.log("Tag not found:", tagName);
+                res.status(404).json({ error: 'Tag not found' });
+            } else {
+                const tagID = tagRows[0].tagID;
+                const getCoursesQuery = `
+                    SELECT courses.*
+                    FROM courses
+                    INNER JOIN course_tags_relation ON courses.courseID = course_tags_relation.courseID
+                    WHERE course_tags_relation.tagID = ?`;
+                
+                connection.query(getCoursesQuery, [tagID], (err, courseRows, fields) => {
+                    if (err) {
+                        console.log("Error fetching courses with tag:", err);
+                        res.status(500).json({ error: 'Internal Server Error' });
+                    } else {
+                        console.log("Fetched courses with tag successfully");
+                        res.json(courseRows);
+                    }
+                });
+            }
         }
     });
 });
