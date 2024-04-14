@@ -207,3 +207,17 @@ app.get("/courses/search/:searchString", (req, res) => {
         }
     });
 });
+app.get("/tags/:tag_name", (req, res) => {
+    const tagName = req.params.tag_name;
+    const queryString = "SELECT tagID FROM tag_info WHERE tag_name = ?";
+    
+    connection.query(queryString, [tagName], (err, rows, fields) => {
+        if (err) {
+            console.log("Error fetching tag IDs:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            console.log("Tag IDs fetched successfully");
+            res.json(rows);
+        }
+    });
+});
