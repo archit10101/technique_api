@@ -239,3 +239,18 @@ app.get("/tags/:tag_name", (req, res) => {
         }
     });
 });
+// Handle GET request to fetch all courses by author
+app.get("/courses/author/:author", (req, res) => {
+    const author = req.params.author;
+    const queryString = "SELECT * FROM courses WHERE courseAuthorName = ?";
+    
+    connection.query(queryString, [author], (err, rows, fields) => {
+        if (err) {
+            console.log("Error fetching courses by author:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            console.log("Fetched courses by author successfully");
+            res.json(rows);
+        }
+    });
+});
