@@ -20,9 +20,7 @@ app.use(bodyparser.urlencoded({extended : true}))
 app.use(morgan("combined"))
 const PORT = process.env.PORT || 8080;
 
-// https.createServer(options, app).listen(PORT, () => {
-//     console.log('Server listening on port https://localhost:'+PORT);
-//   });
+
 
 app.listen(PORT, ()=>{
     console.log("listening");
@@ -251,6 +249,63 @@ app.get("/courses/author/:author", (req, res) => {
         } else {
             console.log("Fetched courses by author successfully");
             res.json(rows);
+        }
+    });
+});
+app.get("/enrolled-courses/:userID/:courseID", (req, res) => {
+    const userID = req.params.userID;
+    const courseID = req.params.courseID;
+
+    // Query to check if there is a row with the given userID and courseID
+    const queryString = "SELECT * FROM user_enrolled_courses WHERE userID = ? AND enrolled_courseID = ?";
+
+    connection.query(queryString, [userID, courseID], (err, rows, fields) => {
+        if (err) {
+            console.log("Error fetching enrolled courses:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            if (rows.length > 0) {
+                // If a row exists, return the data
+                console.log("Found enrolled course for user:", userID, "and course:", courseID);
+                res.json(rows[0]); // Assuming you want to return the first matching row
+            } else {
+                console.log("No enrolled course found for user:", userID, "and course:", courseID);
+                res.status(404).json({ message: 'Enrolled course not found' });
+            }
+        }
+    });
+});
+
+app.post("/enroll-course/:userID/:courseID", (req, res) => {
+    const { userID, courseID } = req.params;
+
+    if (!userID || !courseID) {
+        return res.status(400).json({ error: "UserID and CourseID are required" });
+    }
+
+    // Check if the user is already enrolled in the course
+    const checkQuery = "SELECT * FROM user_enrolled_courses WHERE userID = ? AND enrolled_courseID = ?";
+    connection.query(checkQuery, [userID, courseID], (err, rows, fields) => {
+        if (err) {
+            console.log("Error checking enrollment:", err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+        if (rows.length > 0) {
+            // User is already enrolled
+            return res.status(400).json({ error: "User is already enrolled in this course" });
+        } else {
+            // Insert into user_enrolled_courses with current date and time
+            const insertQuery = "INSERT INTO user_enrolled_courses (userID, enrolled_courseID, date_time) VALUES (?, ?, NOW())";
+            connection.query(insertQuery, [userID, courseID], (err, result) => {
+                if (err) {
+                    console.log("Error enrolling user in course:", err);
+                    return res.status(500).json({ error: 'Internal Server Error' });
+                }
+
+                console.log("Enrolled user in course successfully");
+                res.status(200).json({ message: "Enrolled user in course successfully", userID, courseID });
+            });
         }
     });
 });
