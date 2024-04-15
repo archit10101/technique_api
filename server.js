@@ -102,6 +102,30 @@ app.get("/users/:userName/:password",(req,res) => {
     });
 })
 
+app.put("/users/:userId", (req, res) => {
+    const userId = req.params.userId;
+    const { id,userName, userPassword, userEmail, userFirstName, userLastName } = req.body;
+
+    // Check if all required fields are provided
+    if (!userName || !userPassword || !userEmail || !userFirstName || !userLastName) {
+        return res.status(400).json({ error: "All fields (userName, userPassword, userEmail, userFirstName, userLastName) are required" });
+    }
+
+    // Update query
+    const updateQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, userFirstName = ?, userLastName = ? WHERE userId = ?";
+
+    connection.query(updateQuery, [userName, userPassword, userEmail, userFirstName, userLastName, userId], (err, result) => {
+        if (err) {
+            console.log("Error updating user:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            console.log("User updated successfully");
+            res.status(200).json({ message: "User updated successfully", userId });
+        }
+    });
+});
+
+
 app.get("/",(req,res) => {
     console.log("Responding to root route")
     res.send("Hello from ROOOOOT")
