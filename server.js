@@ -153,7 +153,7 @@ app.get("/courses/courseID/:courseID", (req, res) => {
         } else {
             if (rows.length > 0) {
                 console.log("Fetched course successfully");
-                res.json(rows[0]);
+                res.json(rows);
             } else {
                 res.status(404).json({ error: 'Course not found' });
             }
