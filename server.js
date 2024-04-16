@@ -446,9 +446,11 @@ app.post('/upload', upload.single('file'), (req, res) => {
   app.get('/download/:key', async (req, res) => {
     console.log("download Starting");
 
+    const test = "images/f92adb3b-e81f-403b-8c9b-1d377fed533b"
     const params = {
       Bucket: 'at-technique-bucket',
-      Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
+      Key: test,
+     // Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
       Expires: 3600 // URL expires in 1 hour
 
     };
