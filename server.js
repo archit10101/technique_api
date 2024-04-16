@@ -430,9 +430,10 @@ app.post('/upload', upload.single('file'), (req, res) => {
   app.get('/download/:key', (req, res) => {
     console.log("download Starting");
 
+    const test = "77958667-0f83-448b-bdbd-c68c479b62be"
     const params = {
       Bucket: 'at-technique-bucket',
-      Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
+      Key: `images/${test}`, // Using a folder 'images' and UUID as the filename
     };
   
     s3.getObject(params, (err, data) => {
