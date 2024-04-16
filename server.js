@@ -106,50 +106,74 @@ app.put("/users/:userId", (req, res) => {
         }
 
         // Update user_info table
-        connection.query(updateUserQuery, [userName, userPassword, userEmail, firstName, lastName, userImagePath, userId], (err, resultUserInfo) => {
-            if (err) {
-                connection.rollback(() => {
-                    console.log("Error updating user_info:", err);
-                    res.status(500).json({ error: 'Internal Server Error' });
-                });
-            } else {
-                // Update courses table
-                connection.query(updateCoursesQuery, [userImagePath, userName, userId,100], (err, resultCourses) => {
+        app.put("/users/:userId", (req, res) => {
+            const userId = req.params.userId;
+            const { userName, userPassword, userEmail, firstName, lastName, userImagePath } = req.body;
+        
+            // Check if all required fields are provided
+            if (!userName || !userPassword || !userEmail || !firstName || !lastName || !userId || !userImagePath) {
+                return res.status(400).json({ error: "All fields (userName, userPassword, userEmail, firstName, lastName, userId, userImagePath) are required" });
+            }
+        
+            // Update query for user_info table
+            const updateUserQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, firstName = ?, lastName = ?, userImagePath = ? WHERE userID = ?";
+        
+            // Update query for courses table
+            const updateCoursesQuery = "UPDATE courses SET courseAuthorImgPath = ?, courseAuthorName = ? WHERE courseAuthorID = ? LIMIT ?";
+        
+            // Execute the update queries in a transaction
+            connection.beginTransaction((err) => {
+                if (err) {
+                    console.log("Error beginning transaction:", err);
+                    return res.status(500).json({ error: 'Internal Server Error' });
+                }
+        
+                // Update user_info table
+                connection.query(updateUserQuery, [userName, userPassword, userEmail, firstName, lastName, userImagePath, userId], (err, resultUserInfo) => {
                     if (err) {
                         connection.rollback(() => {
-                            console.log("Error updating courses:", err);
+                            console.log("Error updating user_info:", err);
                             res.status(500).json({ error: 'Internal Server Error' });
                         });
                     } else {
-                        // Get the updated user_info
-                        const getUserQuery = "SELECT * FROM user_info WHERE userID = ?";
-                        connection.query(getUserQuery, [userId], (err, rowsUserInfo) => {
+                        // Update courses table
+                        connection.query(updateCoursesQuery, [userImagePath, userName, userId, 100], (err, resultCourses) => {
                             if (err) {
                                 connection.rollback(() => {
-                                    console.log("Error fetching updated user_info:", err);
+                                    console.log("Error updating courses:", err);
                                     res.status(500).json({ error: 'Internal Server Error' });
                                 });
                             } else {
-                                connection.commit((err) => {
+                                // Get the updated user_info
+                                const getUserQuery = "SELECT * FROM user_info WHERE userID = ?";
+                                connection.query(getUserQuery, [userId], (err, rowsUserInfo) => {
                                     if (err) {
                                         connection.rollback(() => {
-                                            console.log("Error committing transaction:", err);
+                                            console.log("Error fetching updated user_info:", err);
                                             res.status(500).json({ error: 'Internal Server Error' });
                                         });
                                     } else {
-                                        console.log("User and Courses updated successfully");
-                                        const updatedUser = rowsUserInfo[0]; // Assuming only one row is updated
-                                        res.status(200).json(rowsUserInfo);
+                                        connection.commit((err) => {
+                                            if (err) {
+                                                connection.rollback(() => {
+                                                    console.log("Error committing transaction:", err);
+                                                    res.status(500).json({ error: 'Internal Server Error' });
+                                                });
+                                            } else {
+                                                console.log("User and Courses updated successfully");
+                                                const updatedUser = rowsUserInfo[0]; // Assuming only one row is updated
+                                                res.status(200).json(updatedUser);
+                                            }
+                                        });
                                     }
                                 });
                             }
                         });
                     }
                 });
-            }
+            });
         });
-    });
-});
+        
 
 app.get("/users/:userName/:password",(req,res) => {
     console.log("the name is "+req.params.userName)
