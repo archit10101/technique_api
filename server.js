@@ -2,7 +2,6 @@ const express = require('express')
 const app = express();
 const morgan = require('morgan')
 const mysql = require('mysql') 
-const aws = require('aws-sdk');
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
 
 const multer = require('multer');
@@ -20,6 +19,8 @@ if (!awsAccessKeyId || !awsSecretAccessKey) {
 }
 
 const s3Client = new S3Client({
+  region: 'us-east-2', // US East (N. Virginia) region
+
   credentials: {
     accessKeyId: awsAccessKeyId,
     secretAccessKey: awsSecretAccessKey
