@@ -2,9 +2,23 @@ const express = require('express')
 const app = express();
 const morgan = require('morgan')
 const mysql = require('mysql') 
+const aws = require('aws-sdk');
+const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
 
+const upload = multer();
 const https = require('https');
 const fs = require('fs');
+
+aws.config.update({
+    accessKeyId: 'AKIATCKANN4JJUMLXS5X',
+    secretAccessKey: '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',
+    region: 'us-east-1'
+  });
+
+  
+const s3 = new aws.S3();
+
 
 const options = {
     cert: fs.readFileSync('localhost.pem'),
@@ -402,3 +416,37 @@ app.get("/enrolled-courses/:userID", (req, res) => {
         }
     });
 });
+
+app.post('/upload', upload.single('file'), (req, res) => {
+    const uuid = uuidv4();
+
+    const params = {
+      Bucket: 'technique-bucket',
+      Key: uuid,
+      Body: req.file.buffer
+    };
+  
+    s3.upload(params, (err, data) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('Upload failed');
+      }
+      res.send(uuid);
+    });
+  });
+  
+  app.get('/download/:key', (req, res) => {
+    const params = {
+      Bucket: 'technique-bucket',
+      Key: req.params.key
+    };
+  
+    s3.getObject(params, (err, data) => {
+      if (err) {
+        console.error(err);
+        return res.status(500).send('Download failed');
+      }
+      res.send(data.Body);
+    });
+  });
+  
