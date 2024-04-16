@@ -96,7 +96,7 @@ app.put("/users/:userId", (req, res) => {
     const updateUserQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, firstName = ?, lastName = ?, userImagePath = ? WHERE userID = ?";
 
     // Update query for courses table
-    const updateCoursesQuery = "UPDATE courses SET courseAuthorImgPath = ?, courseAuthorName = ? WHERE courseAuthorID = ?";
+    const updateCoursesQuery = "UPDATE courses SET courseAuthorImgpath = ?, courseAuthorName = ? WHERE courseAuthorID = ?";
 
     // Execute the update queries in a transaction
     connection.beginTransaction((err) => {
