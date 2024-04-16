@@ -85,24 +85,57 @@ app.post("/users", async (req, res) => {
 
 app.put("/users/:userId", (req, res) => {
     const userId = req.params.userId;
-    const { id, userName, userPassword, userEmail, firstName, lastName, userImagePath } = req.body;
+    const { userName, userPassword, userEmail, firstName, lastName, userImagePath } = req.body;
 
     // Check if all required fields are provided
-    if (!userName || !userPassword || !userEmail || !firstName || !lastName || !userId) {
-        return res.status(400).json({ error: "All fields (userName, userPassword, userEmail, firstName, lastName, userId) are required" });
+    if (!userName || !userPassword || !userEmail || !firstName || !lastName || !userId || !userImagePath) {
+        return res.status(400).json({ error: "All fields (userName, userPassword, userEmail, firstName, lastName, userId, userImagePath) are required" });
     }
 
-    // Update query
-    const updateQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, firstName = ?, lastName = ?, userImagePath = ? WHERE userID = ?";
+    // Update query for user_info table
+    const updateUserQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, firstName = ?, lastName = ?, userImagePath = ? WHERE userID = ?";
 
-    connection.query(updateQuery, [userName, userPassword, userEmail, firstName, lastName, userImagePath, userId], (err, result) => {
+    // Update query for courses table
+    const updateCoursesQuery = "UPDATE courses SET courseAuthorImgPath = ?, courseAuthorName = ? WHERE courseAuthorID = ?";
+
+    // Execute the update queries in a transaction
+    connection.beginTransaction((err) => {
         if (err) {
-            console.log("Error updating user:", err);
-            res.status(500).json({ error: 'Internal Server Error' });
-        } else {
-            console.log("User updated successfully");
-            res.status(200).json({ message: "User updated successfully", userId });
+            console.log("Error beginning transaction:", err);
+            return res.status(500).json({ error: 'Internal Server Error' });
         }
+
+        // Update user_info table
+        connection.query(updateUserQuery, [userName, userPassword, userEmail, firstName, lastName, userImagePath, userId], (err, resultUserInfo) => {
+            if (err) {
+                connection.rollback(() => {
+                    console.log("Error updating user_info:", err);
+                    res.status(500).json({ error: 'Internal Server Error' });
+                });
+            } else {
+                // Update courses table
+                connection.query(updateCoursesQuery, [userImagePath, userName, userId], (err, resultCourses) => {
+                    if (err) {
+                        connection.rollback(() => {
+                            console.log("Error updating courses:", err);
+                            res.status(500).json({ error: 'Internal Server Error' });
+                        });
+                    } else {
+                        connection.commit((err) => {
+                            if (err) {
+                                connection.rollback(() => {
+                                    console.log("Error committing transaction:", err);
+                                    res.status(500).json({ error: 'Internal Server Error' });
+                                });
+                            } else {
+                                console.log("User and Courses updated successfully");
+                                res.status(200).json({ message: "User and Courses updated successfully", userId });
+                            }
+                        });
+                    }
+                });
+            }
+        });
     });
 });
 
