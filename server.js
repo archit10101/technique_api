@@ -6,14 +6,17 @@ const aws = require('aws-sdk');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
-const upload = multer();
 const https = require('https');
 const fs = require('fs');
 
   
 const s3 = new aws.S3();
 
-
+const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 } // 10 MB limit
+  });
+  
 const options = {
     cert: fs.readFileSync('localhost.pem'),
     key: fs.readFileSync('localhost-key.pem')
@@ -406,6 +409,7 @@ app.get("/enrolled-courses/:userID", (req, res) => {
 
 app.post('/upload', upload.single('file'), (req, res) => {
     const uuid = uuidv4();
+    console.log("upload Starting");
 
     const params = {
       Bucket: 'at-technique-bucket',
@@ -424,6 +428,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 
   app.get('/download/:key', (req, res) => {
+    console.log("download Starting");
+
     const params = {
       Bucket: 'at-technique-bucket',
       Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
