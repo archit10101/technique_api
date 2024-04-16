@@ -101,25 +101,20 @@ app.put("/users/:userId", (req, res) => {
     const userId = req.params.userId;
     const { userName, userPassword, userEmail, firstName, lastName, userImagePath } = req.body;
 
-    // Check if all required fields are provided
     if (!userName || !userPassword || !userEmail || !firstName || !lastName || !userId || !userImagePath) {
         return res.status(400).json({ error: "All fields (userName, userPassword, userEmail, firstName, lastName, userId, userImagePath) are required" });
     }
 
-    // Update query for user_info table
     const updateUserQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, firstName = ?, lastName = ?, userImagePath = ? WHERE userID = ?";
 
-    // Update query for courses table
     const updateCoursesQuery = "UPDATE courses SET courseAuthorImgPath = ?, courseAuthorName = ? WHERE courseAuthorID = ? LIMIT ?";
 
-    // Execute the update queries in a transaction
     connection.beginTransaction((err) => {
         if (err) {
             console.log("Error beginning transaction:", err);
             return res.status(500).json({ error: 'Internal Server Error' });
         }
 
-        // Update user_info table
         connection.query(updateUserQuery, [userName, userPassword, userEmail, firstName, lastName, userImagePath, userId], (err, resultUserInfo) => {
             if (err) {
                 connection.rollback(() => {
@@ -127,7 +122,6 @@ app.put("/users/:userId", (req, res) => {
                     res.status(500).json({ error: 'Internal Server Error' });
                 });
             } else {
-                // Update courses table
                 connection.query(updateCoursesQuery, [userImagePath, userName, userId, 100], (err, resultCourses) => {
                     if (err) {
                         connection.rollback(() => {
@@ -135,7 +129,6 @@ app.put("/users/:userId", (req, res) => {
                             res.status(500).json({ error: 'Internal Server Error' });
                         });
                     } else {
-                        // Get the updated user_info
                         const getUserQuery = "SELECT * FROM user_info WHERE userID = ?";
                         connection.query(getUserQuery, [userId], (err, rowsUserInfo) => {
                             if (err) {
@@ -152,7 +145,7 @@ app.put("/users/:userId", (req, res) => {
                                         });
                                     } else {
                                         console.log("User and Courses updated successfully");
-                                        const updatedUser = rowsUserInfo[0]; // Assuming only one row is updated
+                                        const updatedUser = rowsUserInfo[0];
                                         res.status(200).json(updatedUser);
                                     }
                                 });
@@ -422,8 +415,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
     const params = {
       Bucket: 'technique-bucket',
-      Key: uuid,
-      Body: req.file.fieldname
+      Key: `images/${uuid}`, // Using a folder 'images' and UUID as the filename
+      Body: req.file.buffer
     };
   
     s3.upload(params, (err, data) => {
@@ -438,7 +431,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
   app.get('/download/:key', (req, res) => {
     const params = {
       Bucket: 'technique-bucket',
-      Key: req.params.key
+      Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
     };
   
     s3.getObject(params, (err, data) => {
