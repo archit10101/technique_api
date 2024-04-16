@@ -64,7 +64,7 @@ app.post("/users", async (req, res) => {
         if (!userName || !userEmail || !userPassword) {
             throw new Error("User name, email, and password are mandatory");
         }
-        const SQL = "INSERT INTO `user_info` (userName, userPassword, userEmail, firstName, lastName, userImagePath) VALUES (?, ?, ?, ?, ?, ?)";
+        const SQL = "INSERT INTO user_info (userName, userPassword, userEmail, firstName, lastName, userImagePath) VALUES (?, ?, ?, ?, ?, ?)";
         const result = await queryPromise(SQL, userData);
 
         var queryString = "SELECT * FROM user_info WHERE userName = ?";
