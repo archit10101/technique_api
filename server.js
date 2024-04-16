@@ -58,25 +58,22 @@ function queryPromise(sql, values = []){
 
 app.post("/users", async (req, res) => {
     try {
-        const {id,userName, userPassword, userEmail, firstName, lastName } = req.body;
+        const { id, userName, userPassword, userEmail, firstName, lastName, userImagePath } = req.body;
         
-        const userData = [userName, userPassword, userEmail, firstName, lastName];
+        const userData = [userName, userPassword, userEmail, firstName, lastName, userImagePath];
         if (!userName || !userEmail || !userPassword) {
-            console.log("d",userData);
-
             throw new Error("User name, email, and password are mandatory");
         }
-        const SQL = "INSERT INTO `user_info` (userName, userPassword,userEmail, firstName, lastName) VALUES (?, ?, ?, ?, ?)";
+        const SQL = "INSERT INTO `user_info` (userName, userPassword, userEmail, firstName, lastName, userImagePath) VALUES (?, ?, ?, ?, ?, ?)";
         const result = await queryPromise(SQL, userData);
-        var queryString = "SELECT * FROM user_info WHERE firstName = ?";
-        console.log(queryString,userData);
 
-        connection.query(queryString,[firstName], (err, rows, fields) => {
+        var queryString = "SELECT * FROM user_info WHERE userName = ?";
+        connection.query(queryString, [userName], (err, rows, fields) => {
             if (err) {
                 console.log("Error fetching users:", err);
                 res.status(500).json({ error: 'Internal Server Error' });
             } else {
-                console.log("We fetched users successfully");
+                console.log("Inserted user successfully");
                 res.json(rows); 
             }
         });
@@ -84,6 +81,29 @@ app.post("/users", async (req, res) => {
         console.error(err);
         res.status(500).json({ error: "Internal Server Error" });
     }
+});
+
+app.put("/users/:userId", (req, res) => {
+    const userId = req.params.userId;
+    const { id, userName, userPassword, userEmail, firstName, lastName, userImagePath } = req.body;
+
+    // Check if all required fields are provided
+    if (!userName || !userPassword || !userEmail || !firstName || !lastName || !userId) {
+        return res.status(400).json({ error: "All fields (userName, userPassword, userEmail, firstName, lastName, userId) are required" });
+    }
+
+    // Update query
+    const updateQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, firstName = ?, lastName = ?, userImagePath = ? WHERE userID = ?";
+
+    connection.query(updateQuery, [userName, userPassword, userEmail, firstName, lastName, userImagePath, userId], (err, result) => {
+        if (err) {
+            console.log("Error updating user:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            console.log("User updated successfully");
+            res.status(200).json({ message: "User updated successfully", userId });
+        }
+    });
 });
 
 app.get("/users/:userName/:password",(req,res) => {
@@ -101,31 +121,6 @@ app.get("/users/:userName/:password",(req,res) => {
         }
     });
 })
-
-app.put("/users/:userId", (req, res) => {
-    const userId = req.params.userId;
-    const { id,userName, userPassword, userEmail, firstName, lastName } = req.body;
-
-    // Check if all required fields are provided
-    if (!userName || !userPassword || !userEmail || !firstName || !lastName) {
-        console.log("check: ",[userName, userPassword, userEmail, firstName, lastName, userId])
-        return res.status(400).json({ error: "All fields (userName, userPassword, userEmail, firstName, lastName) are required" });
-    }
-
-    // Update query
-    const updateQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, firstName = ?, lastName = ? WHERE userId = ?";
-
-    connection.query(updateQuery, [userName, userPassword, userEmail, firstName, lastName, userId], (err, result) => {
-        if (err) {
-            console.log("Error updating user:", err);
-            res.status(500).json({ error: 'Internal Server Error' });
-        } else {
-            console.log("User updated successfully");
-            res.status(200).json({ message: "User updated successfully", userId });
-        }
-    });
-});
-
 
 app.get("/",(req,res) => {
     console.log("Responding to root route")
