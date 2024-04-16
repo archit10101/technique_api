@@ -121,15 +121,27 @@ app.put("/users/:userId", (req, res) => {
                             res.status(500).json({ error: 'Internal Server Error' });
                         });
                     } else {
-                        connection.commit((err) => {
+                        // Get the updated user_info
+                        const getUserQuery = "SELECT * FROM user_info WHERE userID = ?";
+                        connection.query(getUserQuery, [userId], (err, rowsUserInfo) => {
                             if (err) {
                                 connection.rollback(() => {
-                                    console.log("Error committing transaction:", err);
+                                    console.log("Error fetching updated user_info:", err);
                                     res.status(500).json({ error: 'Internal Server Error' });
                                 });
                             } else {
-                                console.log("User and Courses updated successfully");
-                                res.status(200).json({ message: "User and Courses updated successfully", userId });
+                                connection.commit((err) => {
+                                    if (err) {
+                                        connection.rollback(() => {
+                                            console.log("Error committing transaction:", err);
+                                            res.status(500).json({ error: 'Internal Server Error' });
+                                        });
+                                    } else {
+                                        console.log("User and Courses updated successfully");
+                                        const updatedUser = rowsUserInfo[0]; // Assuming only one row is updated
+                                        res.status(200).json(rowsUserInfo);
+                                    }
+                                });
                             }
                         });
                     }
