@@ -422,7 +422,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
         console.error(err);
         return res.status(500).send('Upload failed');
       }
-      res.send(uuid);
+      res.send(uuid+"");
     });
   });
 
