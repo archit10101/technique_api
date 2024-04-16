@@ -10,12 +10,6 @@ const upload = multer();
 const https = require('https');
 const fs = require('fs');
 
-aws.config.update({
-    accessKeyId: 'AKIATCKANN4JJUMLXS5X',
-    secretAccessKey: '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',
-    region: 'us-east-1'
-  });
-
   
 const s3 = new aws.S3();
 
@@ -414,7 +408,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
     const uuid = uuidv4();
 
     const params = {
-      Bucket: 'technique-bucket',
+      Bucket: 'at-technique-bucket',
       Key: `images/${uuid}`, // Using a folder 'images' and UUID as the filename
       Body: req.file.buffer
     };
@@ -427,7 +421,9 @@ app.post('/upload', upload.single('file'), (req, res) => {
       res.send(uuid);
     });
   });
-  
+  AKIATCKANN4JLLJLAXOA
+
+i4kAXvsOlLAbhEBnmw5cMnlkGUnZlIFfR5qKHJWn
   app.get('/download/:key', (req, res) => {
     const params = {
       Bucket: 'technique-bucket',
