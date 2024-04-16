@@ -9,8 +9,21 @@ const { v4: uuidv4 } = require('uuid');
 const https = require('https');
 const fs = require('fs');
 
+const awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
+const awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
+
+if (!awsAccessKeyId || !awsSecretAccessKey) {
+  console.error('AWS credentials are missing');
+  process.exit(1); // Exit with error
+}
+
+const s3Client = new S3Client({
+  credentials: {
+    accessKeyId: awsAccessKeyId,
+    secretAccessKey: awsSecretAccessKey
+  }
+});
   
-const s3 = new aws.S3();
 
 const upload = multer({
     storage: multer.memoryStorage(),
@@ -417,7 +430,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
       Body: req.file.buffer
     };
   
-    s3.upload(params, (err, data) => {
+    s3Client.upload(params, (err, data) => {
       if (err) {
         console.error(err);
         return res.status(500).send('Upload failed');
@@ -427,23 +440,24 @@ app.post('/upload', upload.single('file'), (req, res) => {
   });
 
 
-  app.get('/download/:key', (req, res) => {
+  app.get('/download/:key', async (req, res) => {
     console.log("download Starting");
 
-    const test = "77958667-0f83-448b-bdbd-c68c479b62be"
     const params = {
       Bucket: 'at-technique-bucket',
-      Key: `images/${test}`, // Using a folder 'images' and UUID as the filename
+      Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
       Expires: 3600 // URL expires in 1 hour
 
     };
   
-    s3.getSignedUrl('getObject', params, (err, url) => {
-        if (err) {
-          console.error('Error generating presigned URL:', err);
-          return res.status(500).send('Error generating URL');
-        }
-        res.send( url+"" );
-      });
-});
+    try {
+        const command = new GetObjectCommand(params);
+        const { PresignedUrl } = await s3Client.presign(command);
+        res.send(PresignedUrl);
+      } catch (err) {
+        console.error('Error generating presigned URL:', err);
+        res.status(500).send('Error generating URL');
+      }
+    });
+    
   
