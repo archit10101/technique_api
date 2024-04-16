@@ -421,9 +421,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
       res.send(uuid);
     });
   });
-  AKIATCKANN4JLLJLAXOA
 
-i4kAXvsOlLAbhEBnmw5cMnlkGUnZlIFfR5qKHJWn
+
   app.get('/download/:key', (req, res) => {
     const params = {
       Bucket: 'at-technique-bucket',
