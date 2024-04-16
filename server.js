@@ -3,11 +3,10 @@ const app = express();
 const morgan = require('morgan')
 const mysql = require('mysql') 
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
-import {
-    getSignedUrl,
-    S3RequestPresigner,
-  } from "@aws-sdk/s3-request-presigner";
-import { formatUrl } from "@aws-sdk/util-format-url";
+const { getSignedUrl, S3RequestPresigner } = require("@aws-sdk/s3-request-presigner");
+const { formatUrl } = require("@aws-sdk/util-format-url");
+
+// The rest of your code...
 
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
