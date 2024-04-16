@@ -104,18 +104,18 @@ app.get("/users/:userName/:password",(req,res) => {
 
 app.put("/users/:userId", (req, res) => {
     const userId = req.params.userId;
-    const { id,userName, userPassword, userEmail, userFirstName, userLastName } = req.body;
+    const { id,userName, userPassword, userEmail, firstName, lastName } = req.body;
 
     // Check if all required fields are provided
-    if (!userName || !userPassword || !userEmail || !userFirstName || !userLastName) {
-        console.log("check: ",[userName, userPassword, userEmail, userFirstName, userLastName, userId])
-        return res.status(400).json({ error: "All fields (userName, userPassword, userEmail, userFirstName, userLastName) are required" });
+    if (!userName || !userPassword || !userEmail || !firstName || !lastName) {
+        console.log("check: ",[userName, userPassword, userEmail, firstName, lastName, userId])
+        return res.status(400).json({ error: "All fields (userName, userPassword, userEmail, firstName, lastName) are required" });
     }
 
     // Update query
-    const updateQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, userFirstName = ?, userLastName = ? WHERE userId = ?";
+    const updateQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, firstName = ?, lastName = ? WHERE userId = ?";
 
-    connection.query(updateQuery, [userName, userPassword, userEmail, userFirstName, userLastName, userId], (err, result) => {
+    connection.query(updateQuery, [userName, userPassword, userEmail, firstName, lastName, userId], (err, result) => {
         if (err) {
             console.log("Error updating user:", err);
             res.status(500).json({ error: 'Internal Server Error' });
