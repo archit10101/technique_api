@@ -13,7 +13,7 @@ const fs = require('fs');
 aws.config.update({
     accessKeyId: 'AKIATCKANN4JJUMLXS5X',
     secretAccessKey: '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',
-    region: 'us-east-2'
+    region: 'us-east-1'
   });
 
   
@@ -423,7 +423,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
     const params = {
       Bucket: 'technique-bucket',
       Key: uuid,
-      Body: req.file.buffer
+      Body: req.file.fieldname
     };
   
     s3.upload(params, (err, data) => {
