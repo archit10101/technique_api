@@ -96,7 +96,7 @@ app.put("/users/:userId", (req, res) => {
     const updateUserQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, firstName = ?, lastName = ?, userImagePath = ? WHERE userID = ?";
 
     // Update query for courses table
-    const updateCoursesQuery = "UPDATE courses SET courseAuthorImgpath = ?, courseAuthorName = ? WHERE courseAuthorID = ? LIMIT 100";
+    const updateCoursesQuery = "UPDATE courses SET courseAuthorImgpath = ?, courseAuthorName = ? WHERE courseAuthorID = ? LIMIT ?";
 
     // Execute the update queries in a transaction
     connection.beginTransaction((err) => {
@@ -114,7 +114,7 @@ app.put("/users/:userId", (req, res) => {
                 });
             } else {
                 // Update courses table
-                connection.query(updateCoursesQuery, [userImagePath, userName, userId], (err, resultCourses) => {
+                connection.query(updateCoursesQuery, [userImagePath, userName, userId,100], (err, resultCourses) => {
                     if (err) {
                         connection.rollback(() => {
                             console.log("Error updating courses:", err);
