@@ -376,3 +376,29 @@ app.post("/enroll-course/:userID/:courseID", (req, res) => {
         }
     });
 });
+
+app.get("/enrolled-courses/:userID", (req, res) => {
+    const userID = req.params.userID;
+
+    // Query to get courses that the userID is enrolled in from courses table
+    const getEnrolledCoursesQuery = `
+        SELECT courses.*
+        FROM courses
+        INNER JOIN user_enrolled_courses ON courses.courseID = user_enrolled_courses.enrolled_courseID
+        WHERE user_enrolled_courses.userID = ?`;
+
+    connection.query(getEnrolledCoursesQuery, [userID], (err, rows, fields) => {
+        if (err) {
+            console.log("Error fetching enrolled courses for user:", err);
+            res.status(500).json({ error: 'Internal Server Error' });
+        } else {
+            if (rows.length > 0) {
+                console.log("Fetched enrolled courses for user:", userID);
+                res.status(200).json(rows);
+            } else {
+                console.log("No enrolled courses found for user:", userID);
+                res.status(404).json({ message: 'No enrolled courses found' });
+            }
+        }
+    });
+});
