@@ -426,7 +426,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
 i4kAXvsOlLAbhEBnmw5cMnlkGUnZlIFfR5qKHJWn
   app.get('/download/:key', (req, res) => {
     const params = {
-      Bucket: 'technique-bucket',
+      Bucket: 'at-technique-bucket',
       Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
     };
   
