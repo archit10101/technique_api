@@ -3,6 +3,8 @@ const app = express();
 const morgan = require('morgan')
 const mysql = require('mysql') 
 const aws = require('aws-sdk');
+const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
