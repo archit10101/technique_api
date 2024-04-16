@@ -3,6 +3,11 @@ const app = express();
 const morgan = require('morgan')
 const mysql = require('mysql') 
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+import {
+    getSignedUrl,
+    S3RequestPresigner,
+  } from "@aws-sdk/s3-request-presigner";
+import { formatUrl } from "@aws-sdk/util-format-url";
 
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
@@ -451,13 +456,12 @@ app.post('/upload', upload.single('file'), (req, res) => {
       Bucket: 'at-technique-bucket',
       Key: test,
      // Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
-      Expires: 3600 // URL expires in 1 hour
-
     };
   
     try {
         const command = new GetObjectCommand(params);
-        const { PresignedUrl } = await s3Client.presign(command);
+        const PresignedUrl  = getSignedUrl(s3Client, command, { expiresIn: 3600 });
+
         res.send(PresignedUrl);
       } catch (err) {
         console.error('Error generating presigned URL:', err);
