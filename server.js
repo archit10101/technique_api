@@ -13,7 +13,7 @@ const fs = require('fs');
 aws.config.update({
     accessKeyId: 'AKIATCKANN4JJUMLXS5X',
     secretAccessKey: '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',
-    region: 'us-east-1'
+    region: 'us-east-2'
   });
 
   
