@@ -108,6 +108,7 @@ app.put("/users/:userId", (req, res) => {
 
     // Check if all required fields are provided
     if (!userName || !userPassword || !userEmail || !userFirstName || !userLastName) {
+        console.log("check: ",[userName, userPassword, userEmail, userFirstName, userLastName, userId])
         return res.status(400).json({ error: "All fields (userName, userPassword, userEmail, userFirstName, userLastName) are required" });
     }
 
