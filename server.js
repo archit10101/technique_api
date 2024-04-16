@@ -434,14 +434,16 @@ app.post('/upload', upload.single('file'), (req, res) => {
     const params = {
       Bucket: 'at-technique-bucket',
       Key: `images/${test}`, // Using a folder 'images' and UUID as the filename
+      Expires: 3600 // URL expires in 1 hour
+
     };
   
-    s3.getObject(params, (err, data) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send('Download failed');
-      }
-      res.send(data.Body);
-    });
-  });
+    s3.getSignedUrl('getObject', params, (err, url) => {
+        if (err) {
+          console.error('Error generating presigned URL:', err);
+          return res.status(500).send('Error generating URL');
+        }
+        res.send( url+"" );
+      });
+});
   
