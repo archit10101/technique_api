@@ -2,7 +2,7 @@ const express = require('express')
 const app = express();
 const morgan = require('morgan')
 const mysql = require('mysql') 
-const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, GetObjectCommand,PutObjectCommand } = require('@aws-sdk/client-s3');
 const { getSignedUrl, S3RequestPresigner } = require("@aws-sdk/s3-request-presigner");
 const { formatUrl } = require("@aws-sdk/util-format-url");
 
@@ -436,14 +436,18 @@ app.post('/upload', upload.single('file'), (req, res) => {
       Key: `images/${uuid}`, // Using a folder 'images' and UUID as the filename
       Body: req.file.buffer
     };
-  
-    s3Client.upload(params, (err, data) => {
-      if (err) {
-        console.error(err);
-        return res.status(500).send('Upload failed');
-      }
-      res.send(uuid+"");
-    });
+
+    s3Client.send(new PutObjectCommand(uploadParams))
+        .then((data) => {
+            console.log("File uploaded successfully:", data);
+            res.send(uuid+"");
+
+        })
+        .catch((error) => {
+            console.error("Error uploading file:", error);
+            return res.status(500).send('Upload failed');
+
+        });
   });
 
 
