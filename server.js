@@ -24,7 +24,6 @@ if (!awsAccessKeyId || !awsSecretAccessKey) {
 
 const s3Client = new S3Client({
   region: 'us-east-2', // US East (N. Virginia) region
-
   credentials: {
     accessKeyId: awsAccessKeyId,
     secretAccessKey: awsSecretAccessKey
@@ -447,20 +446,20 @@ app.post('/upload', upload.single('file'), (req, res) => {
   });
 
 
-  app.get('/download/:key', async (req, res) => {
+  app.get('/download/:key',  async(req, res) => {
     console.log("download Starting");
 
     const test = "images/f92adb3b-e81f-403b-8c9b-1d377fed533b"
     const params = {
       Bucket: 'at-technique-bucket',
-      Key: test,
-     // Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
+      Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
     };
   
     try {
         const command = new GetObjectCommand(params);
-        const PresignedUrl  = getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        const PresignedUrl  = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
+        console.log(PresignedUrl);
         res.send(PresignedUrl);
       } catch (err) {
         console.error('Error generating presigned URL:', err);
