@@ -117,10 +117,11 @@ app.put("/users/:userId", (req, res) => {
     const userId = req.params.userId;
     const { userName, userPassword, userEmail, firstName, lastName, userImagePath } = req.body;
 
+    console.log([userName, userPassword, userEmail, firstName, lastName, userImagePath, userId]);
+
     if (!userName || !userPassword || !userEmail || !firstName || !lastName || !userId || !userImagePath) {
         return res.status(400).json({ error: "All fields (userName, userPassword, userEmail, firstName, lastName, userId, userImagePath) are required" });
     }
-    console.log([userName, userPassword, userEmail, firstName, lastName, userImagePath, userId]);
 
     const updateUserQuery = "UPDATE user_info SET userName = ?, userPassword = ?, userEmail = ?, firstName = ?, lastName = ?, userImagePath = ? WHERE userID = ?";
 
