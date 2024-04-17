@@ -438,7 +438,7 @@ app.post('/upload', upload.single('file'), (req, res) => {
       Body: req.file.buffer
     };
 
-    s3Client.send(new PutObjectCommand(uploadParams))
+    s3Client.send(new PutObjectCommand(params))
         .then((data) => {
             console.log("File uploaded successfully:", data);
             res.send(uuid+"");
