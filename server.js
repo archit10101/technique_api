@@ -6,7 +6,6 @@ const { S3Client, GetObjectCommand,PutObjectCommand } = require('@aws-sdk/client
 const { getSignedUrl, S3RequestPresigner } = require("@aws-sdk/s3-request-presigner");
 const { formatUrl } = require("@aws-sdk/util-format-url");
 
-// The rest of your code...
 
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
