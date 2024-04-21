@@ -471,5 +471,22 @@ app.post('/upload', upload.single('file'), (req, res) => {
         res.status(500).send('Error generating URL');
       }
     });
-    
+
+    app.get("/videos/course_id/:courseID", (req, res) => {
+        const courseID = req.params.courseID;
+        const queryString = "SELECT * FROM video_tutorial WHERE course_id = ?";
+        connection.query(queryString, [courseID], (err, rows, fields) => {
+            if (err) {
+                console.log("Error fetching video tutorials:", err);
+                res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+                if (rows.length > 0) {
+                    console.log("Fetched video tutorials successfully");
+                    res.json(rows);
+                } else {
+                    res.status(404).json({ error: 'No video tutorials found for the course' });
+                }
+            }
+        });
+    });
   
