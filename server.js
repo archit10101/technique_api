@@ -7,6 +7,7 @@ const { getSignedUrl, S3RequestPresigner } = require("@aws-sdk/s3-request-presig
 const { formatUrl } = require("@aws-sdk/util-format-url");
 
 
+
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 
@@ -428,49 +429,49 @@ app.get("/enrolled-courses/:userID", (req, res) => {
     });
 });
 
-app.post('/upload', upload.single('file'), (req, res) => {
-    const uuid = uuidv4();
-    console.log("upload Starting");
+// app.post('/upload', upload.single('file'), (req, res) => {
+//     const uuid = uuidv4();
+//     console.log("upload Starting");
 
-    const params = {
-      Bucket: 'at-technique-bucket',
-      Key: `images/${uuid}`, // Using a folder 'images' and UUID as the filename
-      Body: req.file.buffer
-    };
+//     const params = {
+//       Bucket: 'at-technique-bucket',
+//       Key: `images/${uuid}`, // Using a folder 'images' and UUID as the filename
+//       Body: req.file.buffer
+//     };
 
-    s3Client.send(new PutObjectCommand(params))
-        .then((data) => {
-            console.log("File uploaded successfully:", data);
-            res.send(uuid+"");
+//     s3Client.send(new PutObjectCommand(params))
+//         .then((data) => {
+//             console.log("File uploaded successfully:", data);
+//             res.send(uuid+"");
 
-        })
-        .catch((error) => {
-            console.error("Error uploading file:", error);
-            return res.status(500).send('Upload failed');
+//         })
+//         .catch((error) => {
+//             console.error("Error uploading file:", error);
+//             return res.status(500).send('Upload failed');
 
-        });
-  });
+//         });
+//   });
 
 
-  app.get('/download/:key',  async(req, res) => {
-    console.log("download Starting");
+    app.get('/download/:key',  async(req, res) => {
+        console.log("download Starting");
 
-    const test = "images/f92adb3b-e81f-403b-8c9b-1d377fed533b"
-    const params = {
-      Bucket: 'at-technique-bucket',
-      Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
-    };
+        const params = {
+        Bucket: 'at-technique-bucket',
+        Key: `images/${req.params.key}`, // Using a folder 'images' and UUID as the filename
+        };
   
-    try {
-        const command = new GetObjectCommand(params);
-        const PresignedUrl  = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+        try {
+            const command = new GetObjectCommand(params);
+            const PresignedUrl  = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
 
-        console.log(PresignedUrl);
-        res.send(PresignedUrl);
-      } catch (err) {
-        console.error('Error generating presigned URL:', err);
-        res.status(500).send('Error generating URL');
-      }
+            console.log(PresignedUrl);
+            res.send(PresignedUrl);
+        }
+        catch (err) {
+            console.error('Error generating presigned URL:', err);
+            res.status(500).send('Error generating URL');
+        }
     });
 
     app.get("/videos/course_id/:courseID", (req, res) => {
@@ -520,5 +521,34 @@ app.post('/upload', upload.single('file'), (req, res) => {
             res.status(500).json({ error: "Internal Server Error" });
         }
     });
+
+
     
-  
+    app.get('/upload', async (req, res) => {
+        console.log("Upload Starting");
+
+
+        const uuid = uuidv4();
+
+        const key = `images/${uuid}`; 
+        const params = {
+            Bucket: 'at-technique-bucket',
+            Key: `images/${uuid}`, 
+        };
+    
+        try {
+    
+
+            const command = new PutObjectCommand(params);
+            const PresignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
+    
+            
+            console.log(PresignedUrl);
+            res.send({ uuid: uuid, url: PresignedUrl }); 
+    
+        } catch (err) {
+            console.error('Error generating presigned URL:', err);
+            res.status(500).send('Error generating URL');
+        }
+    });
+    
