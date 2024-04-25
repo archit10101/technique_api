@@ -77,6 +77,7 @@ function queryPromise(sql, values = []){
         connection.query(sql,values,(error,results) =>{
             if (error){
                 reject(error);
+                console.log(error);
             }else{
                 resolve(results);
             }
@@ -489,4 +490,35 @@ app.post('/upload', upload.single('file'), (req, res) => {
             }
         });
     });
+
+    app.post("/videos", async (req, res) => {
+        try {
+            const { course_id, video_name, video_description, video_img_path, video_path, video_sequence } = req.body;
+    
+            const videoData = [course_id, video_name, video_description, video_img_path, video_path, video_sequence];
+            console.log(videoData);
+    
+            if (!course_id || !video_name || !video_description || !video_img_path || !video_path || !video_sequence) {
+                throw new Error("Course ID, video name, description, image path, video path, and sequence are mandatory");
+            }
+    
+            const SQL = "INSERT INTO `video_tutorial` (course_id, video_name, video_description, video_img_path, video_path, video_sequence) VALUES (?, ?, ?, ?, ?, ?)";
+            const result = await queryPromise(SQL, videoData);
+    
+            const queryString = "SELECT * FROM video_tutorial WHERE videoID = ?";
+            connection.query(queryString, [result.insertId], (err, rows, fields) => {
+                if (err) {
+                    console.log("Error fetching video tutorial:", err);
+                    res.status(500).json({ error: 'Internal Server Error' });
+                } else {
+                    console.log("Inserted video tutorial successfully");
+                    res.json(rows[0]); 
+                }
+            });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    });
+    
   
