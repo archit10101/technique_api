@@ -542,8 +542,8 @@ app.get("/enrolled-courses/:userID", (req, res) => {
             const command = new PutObjectCommand(params);
             const PresignedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 });
     
-            
-            console.log(PresignedUrl);
+
+            console.log("upload success!: "+PresignedUrl);
             res.send({ uuid: uuid, url: PresignedUrl }); 
     
         } catch (err) {
