@@ -552,3 +552,23 @@ app.get("/enrolled-courses/:userID", (req, res) => {
         }
     });
     
+    app.get('/videos/:videoID', (req, res) => {
+        const videoID = req.params.videoID;
+      
+        const queryString = 'SELECT * FROM video_tutorial WHERE videoID = ?';
+      
+        connection.query(queryString, [videoID], (err, rows, fields) => {
+          if (err) {
+            console.error('Error fetching video:', err);
+            res.status(500).json({ error: 'Internal Server Error' });
+          } else {
+            if (rows.length > 0) {
+              console.log('Found video with ID:', videoID);
+              res.json(rows[0]); 
+            } else {
+              console.log('No video found with ID:', videoID);
+              res.status(404).json({ message: 'Video not found' });
+            }
+          }
+        });
+      });
