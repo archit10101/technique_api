@@ -563,7 +563,8 @@ app.get("/enrolled-courses/:userID", (req, res) => {
             res.status(500).json({ error: 'Internal Server Error' });
           } else {
             if (rows.length > 0) {
-              console.log('Found video with ID:', videoID);
+              console.log('Found video with ID:', rows[0].video_name);
+              
               res.json(rows[0]); 
             } else {
               console.log('No video found with ID:', videoID);
