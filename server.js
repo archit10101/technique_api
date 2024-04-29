@@ -600,17 +600,17 @@ app.get("/enrolled-courses/:userID", (req, res) => {
     });
 
     app.post("/create-demo", (req, res) => {
-        const { demoID, videoID, image1, image2, image3, image4, image5, image6, image7, image8, image9, image10, image11, image12 } = req.body;
+        const { demoID, videoID, videoPath, image1, image2, image3, image4, image5, image6, image7, image8, image9, image10, image11, image12 } = req.body;
 
-        if (!videoID || !image1) {
+        if (!videoID || !image1 || !videoPath) {
             return res.status(400).json({ error: "VideoID and at least one image are required" });
         }
 
         // Insert into demos table
         const insertQuery = `
-            INSERT INTO demos (videoID, image1, image2, image3, image4, image5, image6, image7, image8, image9, image10, image11, image12)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-        connection.query(insertQuery, [videoID, image1, image2, image3, image4, image5, image6, image7, image8, image9, image10, image11, image12], (err, result) => {
+            INSERT INTO demos (videoID, videoPath, image1, image2, image3, image4, image5, image6, image7, image8, image9, image10, image11, image12)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        connection.query(insertQuery, [videoID, videoPath, image1, image2, image3, image4, image5, image6, image7, image8, image9, image10, image11, image12], (err, result) => {
             if (err) {
                 console.log("Error creating demo:", err);
                 return res.status(500).json({ error: 'Internal Server Error' });
