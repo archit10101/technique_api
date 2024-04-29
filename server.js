@@ -573,3 +573,51 @@ app.get("/enrolled-courses/:userID", (req, res) => {
           }
         });
       });
+
+    app.get("/demos/:videoID", (req, res) => {
+        const videoID = req.params.videoID;
+
+        // Query to get demo information by videoID from the demos table
+        const getDemoQuery = `
+            SELECT *
+            FROM demos
+            WHERE videoID = ?`;
+
+        connection.query(getDemoQuery, [videoID], (err, rows, fields) => {
+            if (err) {
+                console.log("Error fetching demo:", err);
+                res.status(500).json({ error: 'Internal Server Error' });
+            } else {
+                if (rows.length > 0) {
+                    console.log("Fetched demo with video ID:", videoID);
+                    res.status(200).json(rows); // Assuming there can be multiple demos with the same videoID
+                } else {
+                    console.log("No demo found with video ID:", videoID);
+                    res.status(404).json({ message: 'Demo not found' });
+                }
+            }
+        });
+    });
+
+    app.post("/create-demo", (req, res) => {
+        const { demoID, videoID, image1, image2, image3, image4, image5, image6, image7, image8, image9, image10, image11, image12 } = req.body;
+
+        if (!videoID || !image1) {
+            return res.status(400).json({ error: "VideoID and at least one image are required" });
+        }
+
+        // Insert into demos table
+        const insertQuery = `
+            INSERT INTO demos (videoID, image1, image2, image3, image4, image5, image6, image7, image8, image9, image10, image11, image12)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        connection.query(insertQuery, [videoID, image1, image2, image3, image4, image5, image6, image7, image8, image9, image10, image11, image12], (err, result) => {
+            if (err) {
+                console.log("Error creating demo:", err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            }
+
+            console.log("Created demo successfully");
+            res.status(200).json({ message: "Created demo successfully", videoID });
+        });
+    });
+
