@@ -209,9 +209,9 @@ app.get("/users", (req,res) =>{
 
 app.post("/courses", async (req, res) => {
     try {
-        const { courseName, courseDescription, courseAuthorName, courseAuthorID, courseAuthorImgPath, courseImgPath } = req.body;
+        const { courseName, courseDescription, courseAuthorName, courseAuthorID, courseAuthorImgpath, courseImgPath } = req.body;
         
-        const courseData = [courseName, courseDescription, courseAuthorName, courseAuthorID, courseAuthorImgPath, courseImgPath];
+        const courseData = [courseName, courseDescription, courseAuthorName, courseAuthorID, courseAuthorImgpath, courseImgPath];
         console.log(courseData);
         if (!courseName || !courseDescription || !courseAuthorName || !courseAuthorID) {
             throw new Error("Course name, description, author name, and author ID are mandatory");
