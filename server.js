@@ -61,7 +61,7 @@ app.listen(PORT, ()=>{
 const connection = mysql.createConnection({
     host: "aws-technique.cxemeyy82p0i.us-east-2.rds.amazonaws.com",
     user: "admin",
-    password: 'ConGloTech',
+    password: process.env.AWS_Database_Key,
     database: "techniqueData",
     port: 3306
 });
